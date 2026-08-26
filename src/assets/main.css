@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+/* Asegura que la raíz ocupe siempre al menos el 100% de la ventana */
+html,
+body,
+#app {
+    min-height: 100vh;
+    min-height: 100dvh; /* Soporte dinámico para navegadores modernos */
+    margin: 0;
+    padding: 0;
+    background-color: #0f172a; /* Reemplaza por el color oscuro base de tu tema (ej. slate-900) */
+    color: #f8fafc;
+}

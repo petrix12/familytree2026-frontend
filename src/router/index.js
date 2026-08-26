@@ -16,6 +16,7 @@ const router = createRouter({
     { path: '/register', name: 'register', component: RegisterView, meta: { requiresGuest: true } },
     { path: '/dashboard', name: 'dashboard', component: DashboardView, meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView },
+    { path: '/admin', name: 'admin-dashboard', component: () => import('../views/admin/AdminDashboardView.vue'), meta: { requiresAuth: true, requiredRole: 'SUPER_ADMIN' } },
     { path: '/admin/users', name: 'admin-users', component: () => import('../views/admin/UsersAdminView.vue'), meta: { requiresAuth: true, requiresRole: 'SUPER_ADMIN' }, }
   ],
 });

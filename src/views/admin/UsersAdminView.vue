@@ -1,13 +1,34 @@
 <template>
-    <!-- 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"> -->
     <div class="min-h-screen bg-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Botón de retorno al Panel Admin -->
+        <div class="mb-6">
+            <router-link 
+                to="/admin" 
+                class="inline-flex items-center space-x-2 text-sm text-purple-400 hover:text-purple-300 transition-colors group"
+            >
+                <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Volver al Panel Admin</span>
+            </router-link>
+        </div>
         <!-- Encabezado -->
         <div class="md:flex md:items-center md:justify-between mb-8">
             <div class="flex-1 min-w-0">
                 <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Gestión de Usuarios</h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Administra los permisos y accesos de la plataforma en tiempo real.</p>                
             </div>
+            <div class="mt-4 md:mt-0 flex">
+                <button
+                    @click="openUserModal(null)"
+                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-colors flex items-center gap-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nuevo Usuario
+                </button>
+            </div>            
         </div>
 
         <!-- Barra de Búsqueda y Filtros -->
@@ -42,64 +63,110 @@
                 No se encontraron usuarios que coincidan con la búsqueda.
             </div>
 
-            <table v-else class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead class="bg-slate-50 dark:bg-slate-900/50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Roles Asignados</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Registro</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                    <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                        <!-- Info Usuario -->
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-slate-700 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-slate-600">
-                                    {{ user.name ? user.name.charAt(0) : 'U' }}
+            <div v-else class="overflow-x-auto w-full">
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                    <thead>
+                        <tr class="border-b border-slate-700/60 bg-slate-800/40 text-slate-400 text-xs font-semibold uppercase tracking-wider select-none">                            
+                            <!-- Columna Nombre (Usuario) -->
+                            <th @click="handleSort('name')" class="px-6 py-3 text-left cursor-pointer hover:text-white transition-colors">
+                                <div class="flex items-center space-x-1">
+                                    <span>Usuario</span>
+                                    <span class="inline-flex flex-col text-[10px] leading-none">
+                                        <span :class="sortBy === 'name' && sortOrder === 'asc' ? 'text-emerald-400' : 'text-slate-600'">▲</span>
+                                        <span :class="sortBy === 'name' && sortOrder === 'desc' ? 'text-emerald-400' : 'text-slate-600'">▼</span>
+                                    </span>
                                 </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-slate-900 dark:text-slate-200">{{ user.name }}</div>
-                                    <div class="text-sm text-slate-500 dark:text-slate-400">{{ user.email }}</div>
+                            </th>
+
+                            <!-- Columna Roles (No ordenable) -->
+                            <th class="px-6 py-3 text-left">Roles Asignados</th>
+
+                            <!-- Columna Fecha Registro -->
+                            <th @click="handleSort('createdAt')" class="px-6 py-3 text-left cursor-pointer hover:text-white transition-colors">
+                                <div class="flex items-center space-x-1">
+                                    <span>Fecha Registro</span>
+                                    <span class="inline-flex flex-col text-[10px] leading-none">
+                                        <span :class="sortBy === 'createdAt' && sortOrder === 'asc' ? 'text-emerald-400' : 'text-slate-600'">▲</span>
+                                        <span :class="sortBy === 'createdAt' && sortOrder === 'desc' ? 'text-emerald-400' : 'text-slate-600'">▼</span>
+                                    </span>
                                 </div>
-                            </div>
-                        </td>
+                            </th>
 
-                        <!-- Badges de Roles -->
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex flex-wrap gap-1.5">
-                                <span
-                                    v-for="role in user.roles"
-                                    :key="role"
-                                    :class="getRoleBadgeClass(role)"
-                                    class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"
-                                >
-                                    {{ role }}
-                                </span>
-                                <span v-if="user.roles.length === 0" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600">
-                                    Sin permisos (Guest)
-                                </span>
-                            </div>
-                        </td>
+                            <th class="px-6 py-3 text-right">Acciones</th>
+                        </tr>
+                    </thead>                    
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                        <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                            <!-- Info Usuario -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-slate-700 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-slate-600">
+                                        {{ user.name ? user.name.charAt(0) : 'U' }}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-slate-900 dark:text-slate-200">{{ user.name }}</div>
+                                        <div class="text-sm text-slate-500 dark:text-slate-400">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
 
-                        <!-- Fecha -->
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                            {{ formatDate(user.createdAt) }}
-                        </td>
+                            <!-- Badges de Roles -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span
+                                        v-for="role in user.roles"
+                                        :key="role"
+                                        :class="getRoleBadgeClass(role)"
+                                        class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"
+                                    >
+                                        {{ role }}
+                                    </span>
+                                    <span v-if="user.roles.length === 0" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600">
+                                        Sin permisos (Guest)
+                                    </span>
+                                </div>
+                            </td>
 
-                        <!-- Acciones -->
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button
-                                @click="openRoleModal(user)"
-                                class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white rounded-lg transition-all"
-                            >
-                                Editar Roles
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <!-- Fecha -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                {{ formatDate(user.createdAt) }}
+                            </td>
+
+                            <!-- Acciones -->
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="inline-flex items-center justify-end space-x-2">
+                                    <button
+                                        @click="openUserModal(user)"
+                                        title="Editar datos del usuario"
+                                        class="h-9 w-9 inline-flex items-center justify-center bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white rounded-lg transition-all"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+
+                                    <button
+                                        @click="confirmDeleteUser(user)"
+                                        title="Eliminar usuario"
+                                        class="h-9 w-9 inline-flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white rounded-lg transition-all"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+
+                                    <button
+                                        @click="openRoleModal(user)"
+                                        class="h-9 px-3 inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white rounded-lg transition-all"
+                                    >
+                                        Editar Roles
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Paginación -->
             <div v-if="pagination.totalPages > 1" class="px-6 py-4 bg-slate-50 dark:bg-slate-900/40 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -162,10 +229,79 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Modal de Usuario (Creación / Edición) -->
+        <div v-if="isUserModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+                    {{ targetUser ? 'Editar Usuario' : 'Nuevo Usuario' }}
+                </h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                    {{ targetUser ? `Modificando los datos de ${targetUser.name}` : 'Ingresa la información del nuevo usuario' }}
+                </p>
+
+                <form @submit.prevent="saveUserData" class="space-y-4">
+                    <!-- Nombre -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nombre Completo</label>
+                        <input
+                            v-model="userForm.name"
+                            type="text"
+                            required
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Correo Electrónico</label>
+                        <input
+                            v-model="userForm.email"
+                            type="email"
+                            required
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                            Contraseña {{ targetUser ? '(Opcional / Dejar en blanco)' : '' }}
+                        </label>
+                        <input
+                            v-model="userForm.password"
+                            type="password"
+                            :required="!targetUser"
+                            placeholder="••••••••"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button
+                            type="button"
+                            @click="isUserModalOpen = false"
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            :disabled="saving"
+                            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl disabled:opacity-50 transition-colors"
+                        >
+                            {{ saving ? 'Guardando...' : (targetUser ? 'Guardar Cambios' : 'Crear Usuario') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>        
     </div>
 </template>
 
 <script setup>
+    import Swal from 'sweetalert2';
     import { ref, onMounted } from 'vue';
     import { adminService } from '../../services/admin.service';
 
@@ -182,11 +318,28 @@
     const modalRoles = ref([]);
     const availableRoles = ['SUPER_ADMIN', 'ADMIN', 'USER'];
 
-    // --- ESTADOS PARA EDICIÓN DE DATOS PERSONALES (NUEVO) ---
-    const editingUser = ref(null);
-    const userForm = ref({ name: '', email: '' });
+    // --- ESTADOS PARA CREACIÓN / EDICIÓN COMPLETA DE USUARIO ---
+    const isUserModalOpen = ref(false);
+    const targetUser = ref(null);
+    const userForm = ref({ name: '', email: '', password: '' });
 
     // --- LÓGICA DE CARGA Y BÚSQUEDA ---
+    // Estados de ordenamiento
+    const sortBy = ref('createdAt');
+    const sortOrder = ref('desc');
+
+    const handleSort = (field) => {
+        if (sortBy.value === field) {
+            // Alternar entre ascendente y descendente
+            sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortBy.value = field;
+            sortOrder.value = 'asc';
+        }
+        fetchUsers(1); // Volver a la primera página al reordenar
+    };
+
+    // Actualiza tu fetchUsers para enviar estos parámetros
     const fetchUsers = async (page = 1) => {
         loading.value = true;
         try {
@@ -194,6 +347,8 @@
                 search: searchQuery.value,
                 page,
                 limit: 10,
+                sortBy: sortBy.value,
+                sortOrder: sortOrder.value
             });
             users.value = res.data.users;
             pagination.value = res.data.pagination;
@@ -202,7 +357,7 @@
         } finally {
             loading.value = false;
         }
-    };
+    };      
 
     const handleSearch = () => {
         clearTimeout(searchTimeout);
@@ -235,29 +390,98 @@
         }
     };
 
-    // --- LÓGICA DE DATOS PERSONALES (NUEVO) ---
-    const openEditModal = (user) => {
-        editingUser.value = user;
-        userForm.value = { name: user.name, email: user.email };
+    // --- LÓGICA DE CREACIÓN / EDICIÓN DE USUARIO ---
+    const openUserModal = (user = null) => {
+        targetUser.value = user;
+        if (user) {
+            // Edición
+            userForm.value = { name: user.name, email: user.email, password: '' };
+        } else {
+            // Creación
+            userForm.value = { name: '', email: '', password: '' };
+        }
+        isUserModalOpen.value = true;
     };
 
     const saveUserData = async () => {
-        if (!editingUser.value) return;
         saving.value = true;
         try {
-            const res = await adminService.updateUser(editingUser.value.id, userForm.value);
-            
-            // Actualiza de inmediato la fila en la reactividad local de Vue
-            editingUser.value.name = res.data.user.name;
-            editingUser.value.email = res.data.user.email;
-            
-            editingUser.value = null;
+            if (targetUser.value) {
+                // Actualización (si la password viene vacía, el backend no la actualiza)
+                const payload = { ...userForm.value };
+                if (!payload.password) delete payload.password;
+
+                const res = await adminService.updateUser(targetUser.value.id, payload);
+                
+                // Actualiza en vivo la lista local
+                targetUser.value.name = res.data.user.name;
+                targetUser.value.email = res.data.user.email;
+            } else {
+                // Creación de nuevo usuario
+                await adminService.createUser(userForm.value);
+                await fetchUsers(1); // Recarga la primera página
+            }
+            isUserModalOpen.value = false;
         } catch (err) {
-            alert(err.response?.data?.message || 'Error al actualizar el usuario');
+            alert(err.response?.data?.message || 'Error al procesar la solicitud');
         } finally {
             saving.value = false;
         }
     };
+
+    // --- LÓGICA DE ELIMINACIÓN CON SWEETALERT2 ---
+    const confirmDeleteUser = async (user) => {
+        const result = await Swal.fire({
+            title: '¿Eliminar usuario?',
+            html: `Estás a punto de eliminar a <strong>${user.name}</strong>.<br><span class="text-xs text-slate-400">Esta acción no se puede deshacer.</span>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // Red-500 de Tailwind
+            cancelButtonColor: '#64748b',  // Slate-500 de Tailwind
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#1e293b',         // Slate-800 de Tailwind (Coincide con tu tema)
+            color: '#f8fafc',              // Slate-50 de Tailwind
+            customClass: {
+                popup: 'rounded-xl border border-slate-700 shadow-2xl',
+                confirmButton: 'px-4 py-2 rounded-lg font-medium text-sm',
+                cancelButton: 'px-4 py-2 rounded-lg font-medium text-sm'
+            }
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await adminService.deleteUser(user.id);
+                
+                // Notificación flotante de éxito
+                Swal.fire({
+                    title: '¡Eliminado!',
+                    text: 'El usuario ha sido eliminado correctamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#1e293b',
+                    color: '#f8fafc',
+                    customClass: {
+                        popup: 'rounded-xl border border-slate-700'
+                    }
+                });
+
+                await fetchUsers(pagination.value.page);
+            } catch (err) {
+                Swal.fire({
+                    title: 'Error',
+                    text: err.response?.data?.message || 'Error al intentar eliminar el usuario',
+                    icon: 'error',
+                    background: '#1e293b',
+                    color: '#f8fafc',
+                    customClass: {
+                        popup: 'rounded-xl border border-slate-700'
+                    }
+                });
+            }
+        }
+    };    
 
     // --- UTILITIES DE FORMATO Y ESTILOS ---
     const getRoleBadgeClass = (role) => {
@@ -272,6 +496,7 @@
     };
 
     const formatDate = (dateStr) => {
+        if (!dateStr) return 'N/A';
         return new Date(dateStr).toLocaleDateString('es-ES', {
             day: '2-digit',
             month: 'short',
