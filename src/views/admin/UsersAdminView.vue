@@ -4,31 +4,25 @@
         <div class="mb-6">
             <router-link 
                 to="/admin" 
-                class="inline-flex items-center space-x-2 text-sm text-purple-400 hover:text-purple-300 transition-colors group"
+                class="inline-flex items-center space-x-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors group"
             >
-                <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
+                <ChevronLeftIcon class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" />
                 <span>Volver al Panel Admin</span>
             </router-link>
         </div>
         <!-- Encabezado -->
-        <div class="md:flex md:items-center md:justify-between mb-8">
-            <div class="flex-1 min-w-0">
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Gestión de Usuarios</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Administra los permisos y accesos de la plataforma en tiempo real.</p>                
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Gestión de Usuarios</h1>
+                <p class="text-slate-400 text-sm mt-1">Administra los permisos y accesos de la plataforma en tiempo real.</p>                
             </div>
-            <div class="mt-4 md:mt-0 flex">
-                <button
-                    @click="openUserModal(null)"
-                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-colors flex items-center gap-2"
-                >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Nuevo Usuario
-                </button>
-            </div>            
+            <button
+                @click="openUserModal(null)"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-colors shadow-lg shadow-emerald-600/30"
+            >
+                <PlusIcon class="w-5 h-5" />
+                Nuevo Usuario
+            </button>           
         </div>
 
         <!-- Barra de Búsqueda y Filtros -->
@@ -41,14 +35,7 @@
                     placeholder="Buscar por nombre o correo electrónico..."
                     class="w-full bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg px-10 py-2.5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
                 />
-                <svg
-                    class="w-5 h-5 text-slate-400 absolute left-3 top-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <MagnifyingGlassIcon class="w-5 h-5 text-slate-400 absolute left-3 top-3" />
             </div>
         </div>
 
@@ -140,9 +127,7 @@
                                         title="Editar datos del usuario"
                                         class="h-9 w-9 inline-flex items-center justify-center bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white rounded-lg transition-all"
                                     >
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
+                                        <PencilSquareIcon class="w-4 h-4" />
                                     </button>
 
                                     <button
@@ -150,16 +135,15 @@
                                         title="Eliminar usuario"
                                         class="h-9 w-9 inline-flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white rounded-lg transition-all"
                                     >
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
+                                        <TrashIcon class="w-4 h-4" />
                                     </button>
 
                                     <button
                                         @click="openRoleModal(user)"
+                                        title="Editar Roles"
                                         class="h-9 px-3 inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white rounded-lg transition-all"
                                     >
-                                        Editar Roles
+                                        <UserGroupIcon class="w-4 h-4" />
                                     </button>
                                 </div>
                             </td>
@@ -301,6 +285,7 @@
 </template>
 
 <script setup>
+    import { TrashIcon, UserGroupIcon, PencilSquareIcon, PlusIcon, ChevronLeftIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
     import Swal from 'sweetalert2';
     import { ref, onMounted } from 'vue';
     import { adminService } from '../../services/admin.service';
