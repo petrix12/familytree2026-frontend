@@ -7,24 +7,34 @@
 <template>
     <div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between">
         <!-- Navbar simple -->
-        <header class="py-6 px-8 flex justify-between items-center border-b border-slate-800">
-            <div class="flex items-center gap-2">
+        <header class="py-4 px-4 sm:px-8 flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-4 border-b border-slate-800 text-center sm:text-left">
+            <!-- Logotipo / Branding -->
+            <div class="flex items-center justify-center gap-2 shrink-0">
                 <span class="text-2xl">🌳</span>
-                <span class="font-bold text-xl text-emerald-400">FamilyTree 2026</span>
+                <span class="font-bold text-lg sm:text-xl text-emerald-400 whitespace-nowrap">FamilyTree 2026</span>
             </div>
-            <div>
+
+            <!-- Acciones de Usuario -->
+            <div class="flex items-center justify-center shrink-0">
                 <router-link
                     v-if="authStore.isAuthenticated"
                     to="/dashboard"
-                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-semibold transition-colors"
+                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
                 >
                     Ir al Dashboard
                 </router-link>
-                <div v-else class="flex gap-4">
-                    <router-link to="/login" class="px-4 py-2 text-slate-300 hover:text-white text-sm font-medium">
+                
+                <div v-else class="flex items-center justify-center gap-3 sm:gap-4">
+                    <router-link 
+                        to="/login" 
+                        class="px-3 sm:px-4 py-2 text-slate-300 hover:text-white text-sm font-medium whitespace-nowrap transition-colors"
+                    >
                         Iniciar Sesión
                     </router-link>
-                    <router-link to="/register" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-semibold transition-colors">
+                    <router-link 
+                        to="/register" 
+                        class="px-3 sm:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+                    >
                         Registrarse
                     </router-link>
                 </div>

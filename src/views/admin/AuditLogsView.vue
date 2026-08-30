@@ -18,7 +18,7 @@
             </div>
             <button 
                 @click="fetchLogs" 
-                class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition-colors w-fit"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-800 hover:bg-yellow-700 text-white rounded-xl text-sm font-medium transition-colors w-fit"
             >
                 <span>Refrescar</span>
             </button>
@@ -46,8 +46,8 @@
                 >
                 <option value="">Todas</option>
                 <option value="User">Usuario</option>
-                <option value="Person">Persona / Árbol</option>
                 <option value="Auth">Autenticación</option>
+                <option value="Role">Rol</option>
                 <option value="System">Sistema</option>
                 </select>
             </div>
@@ -79,47 +79,47 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider border-b border-slate-200 dark:border-slate-700">
                         <tr>
-                        <th class="py-3 px-4">Fecha / Hora</th>
-                        <th class="py-3 px-4">Usuario</th>
-                        <th class="py-3 px-4">Acción</th>
-                        <th class="py-3 px-4">Entidad</th>
-                        <th class="py-3 px-4">IP</th>
-                        <th class="py-3 px-4 text-right">Detalles</th>
+                            <th class="py-3 px-4">Fecha / Hora</th>
+                            <th class="py-3 px-4">Usuario</th>
+                            <th class="py-3 px-4">Acción</th>
+                            <th class="py-3 px-4">Entidad</th>
+                            <th class="py-3 px-4">IP</th>
+                            <th class="py-3 px-4 text-right">Detalles</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-slate-700 dark:text-slate-300">
                         <tr v-if="loading">
-                        <td colspan="6" class="text-center py-8 text-slate-400">Cargando registros...</td>
+                            <td colspan="6" class="text-center py-8 text-slate-400">Cargando registros...</td>
                         </tr>
                         <tr v-else-if="logs.length === 0">
-                        <td colspan="6" class="text-center py-8 text-slate-400">No se encontraron eventos.</td>
+                            <td colspan="6" class="text-center py-8 text-slate-400">No se encontraron eventos.</td>
                         </tr>
                         <tr v-for="log in logs" :key="log.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
-                        <td class="py-3 px-4 font-mono text-xs whitespace-nowrap">{{ formatDate(log.createdAt) }}</td>
-                        <td class="py-3 px-4">
-                            <div v-if="log.user" class="flex flex-col">
-                                <span class="font-medium text-slate-900 dark:text-white">{{ log.user.name }}</span>
-                                <span class="text-xs text-slate-400">{{ log.user.email }}</span>
-                            </div>
-                            <span v-else class="text-xs text-slate-400 italic">Sistema / Anónimo</span>
-                        </td>
-                        <td class="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">{{ log.action }}</td>
-                        <td class="py-3 px-4">
-                            <span :class="getEntityBadgeClass(log.entity)" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg border">
-                                {{ log.entity }}
-                            </span>
-                        </td>
-                        <td class="py-3 px-4 font-mono text-xs text-slate-400">{{ log.ipAddress || 'N/A' }}</td>
-                        <td class="py-3 px-4 text-right">
-                            <button 
-                                v-if="log.details" 
-                                @click="openDetailsModal(log)" 
-                                class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
-                            >
-                                Ver JSON
-                            </button>
-                            <span v-else class="text-xs text-slate-400">-</span>
-                        </td>
+                            <td class="py-3 px-4 font-mono text-xs whitespace-nowrap">{{ formatDate(log.createdAt) }}</td>
+                            <td class="py-3 px-4">
+                                <div v-if="log.user" class="flex flex-col">
+                                    <span class="font-medium text-slate-900 dark:text-white">{{ log.user.name }}</span>
+                                    <span class="text-xs text-slate-400">{{ log.user.email }}</span>
+                                </div>
+                                <span v-else class="text-xs text-slate-400 italic">Sistema / Anónimo</span>
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">{{ log.action }}</td>
+                            <td class="py-3 px-4">
+                                <span :class="getEntityBadgeClass(log.entity)" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg border">
+                                    {{ log.entity }}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 font-mono text-xs text-slate-400">{{ log.ipAddress || 'N/A' }}</td>
+                            <td class="py-3 px-4 text-right">
+                                <button 
+                                    v-if="log.details" 
+                                    @click="openDetailsModal(log)" 
+                                    class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+                                >
+                                    Ver JSON
+                                </button>
+                                <span v-else class="text-xs text-slate-400">-</span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -148,21 +148,20 @@
                 </div>
             </div>
         </div>
-
         <!-- Modal de Detalles JSON -->
         <div v-if="selectedLogModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Detalles del Evento</h3>
-                <p class="text-xs text-slate-400 font-mono">{{ selectedLogModal.action }} - {{ formatDate(selectedLogModal.createdAt) }}</p>
-                
-                <div class="bg-slate-950 p-4 rounded-xl text-emerald-400 font-mono text-xs overflow-x-auto max-h-80">
-                    <pre>{{ JSON.stringify(selectedLogModal.details, null, 2) }}</pre>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between text-center sm:text-left gap-1">
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Detalles del Evento</h3>
+                    <span class="text-xs text-slate-400 font-mono">{{ selectedLogModal.action }} - {{ formatDate(selectedLogModal.createdAt) }}</span>
+                </div>                
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 overflow-y-auto overflow-x-hidden max-h-[50vh] max-w-full">
+                    <pre class="text-emerald-400 font-mono text-xs whitespace-pre-wrap break-all leading-relaxed select-all">{{ formatJsonDetails(selectedLogModal.details) }}</pre>
                 </div>
-
                 <div class="flex justify-end">
                     <button 
                         @click="selectedLogModal = null" 
-                        class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-200 transition-colors"
+                        class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer"
                     >
                         Cerrar
                     </button>
@@ -235,10 +234,10 @@
 
     const getEntityBadgeClass = (entity) => {
         switch (entity) {
-            case 'User': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-            case 'Person': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
-            case 'Auth': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
-            default: return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+            case 'User': return 'bg-blue-500/10 text-emerald-500 border-emerald-500/20';
+            case 'Role': return 'bg-emerald-500/10 text-purple-500 border-purple-500/20';
+            case 'Auth': return 'bg-amber-500/10 text-blue-500 border-blue-500/20';
+            default: return 'bg-yellow-500/10 text-yellow-400 border-slate-500/20';
         }
     };
 
@@ -249,6 +248,18 @@
             timeStyle: 'medium',
         });
     };
+
+    const formatJsonDetails = (details) => {
+        if (!details) return '';
+        try {
+            // Si viene como String, lo parseamos a Objeto. Si ya es Objeto, lo dejamos igual.
+            const parsed = typeof details === 'string' ? JSON.parse(details) : details;
+            return JSON.stringify(parsed, null, 2);
+        } catch (e) {
+            // Si no es un JSON válido, retornamos el texto tal cual
+            return details;
+        }
+    };    
 
     onMounted(() => {
         fetchLogs();

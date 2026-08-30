@@ -15,15 +15,22 @@
 <template>
     <div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
         <!-- Navbar -->
-        <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-emerald-400">Starter App Dashboard</h1>
-            <div class="flex items-center gap-4">
-                <span class="text-sm text-slate-300">{{ authStore.user?.name }}</span>
+        <header class="bg-slate-800 border-b border-slate-700 py-4 px-4 sm:px-6 flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-4 text-center sm:text-left">
+            <!-- Título / Branding -->
+            <h1 class="text-lg sm:text-xl font-bold text-emerald-400 whitespace-nowrap">
+                Starter App Dashboard
+            </h1>
+
+            <!-- Usuario y Acciones -->
+            <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                <span class="text-sm text-slate-300 whitespace-nowrap">
+                    {{ authStore.user?.name }}
+                </span>
                 
                 <router-link 
                     v-if="authStore.userRoles.includes('SUPER_ADMIN')" 
                     to="/admin" 
-                    class="px-3 py-2 rounded-lg text-sm font-medium text-purple-400 hover:text-purple-300 hover:bg-purple-950/40 transition-all flex items-center space-x-2"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium text-purple-400 hover:text-purple-300 hover:bg-purple-950/40 transition-all flex items-center space-x-2 whitespace-nowrap shrink-0"
                 >
                     <Cog6ToothIcon class="w-4 h-4" />
                     <span>Panel Admin</span>
@@ -31,12 +38,12 @@
 
                 <button
                     @click="handleLogout"
-                    class="px-3 py-1.5 bg-red-600/80 hover:bg-red-500 text-sm font-medium rounded-lg transition-colors cursor-pointer"
+                    class="px-3 py-1.5 bg-red-600/80 hover:bg-red-500 text-sm font-medium rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 >
                     Cerrar Sesión
                 </button>
             </div>
-        </header>
+        </header>        
 
         <!-- Main Content -->
         <main class="flex-1 p-6 max-w-4xl mx-auto w-full">
