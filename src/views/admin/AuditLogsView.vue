@@ -48,7 +48,7 @@
                 <option value="User">Usuario</option>
                 <option value="Auth">Autenticación</option>
                 <option value="Role">Rol</option>
-                <option value="System">Sistema</option>
+                <option value="SystemLog">Sistema</option>
                 </select>
             </div>
 
