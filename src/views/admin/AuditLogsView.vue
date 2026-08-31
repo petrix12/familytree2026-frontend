@@ -41,34 +41,34 @@
                 <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Entidad</label>
                 <select 
                     v-model="filters.entity" 
-                    @change="fetchLogs"
+                    @change="fetchLogs(1)"
                     class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                <option value="">Todas</option>
-                <option value="User">Usuario</option>
-                <option value="Auth">Autenticación</option>
-                <option value="Role">Rol</option>
-                <option value="SystemLog">Sistema</option>
+                    <option value="">Todas</option>
+                    <option value="User">Usuario</option>
+                    <option value="Auth">Autenticación</option>
+                    <option value="Role">Rol</option>
+                    <option value="SystemLog">Sistema</option>
                 </select>
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Desde</label>
                 <input 
-                v-model="filters.startDate" 
-                @change="fetchLogs"
-                type="date" 
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    ref="startDateInput"
+                    type="text" 
+                    placeholder="Seleccionar fecha..."
+                    class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 />
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Hasta</label>
                 <input 
-                    v-model="filters.endDate" 
-                    @change="fetchLogs"
-                    type="date" 
-                    class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    ref="endDateInput"
+                    type="text" 
+                    placeholder="Seleccionar fecha..."
+                    class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 />
             </div>
         </div>
@@ -77,16 +77,59 @@
         <div class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider border-b border-slate-200 dark:border-slate-700">
-                        <tr>
-                            <th class="py-3 px-4">Fecha / Hora</th>
-                            <th class="py-3 px-4">Usuario</th>
-                            <th class="py-3 px-4">Acción</th>
-                            <th class="py-3 px-4">Entidad</th>
-                            <th class="py-3 px-4">IP</th>
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider select-none">
+                            <!-- Fecha / Hora -->
+                            <th @click="handleSort('createdAt')" class="py-3 px-4 text-left cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors">
+                                <div class="flex items-center space-x-1">
+                                    <span>Fecha / Hora</span>
+                                    <span class="inline-flex flex-col text-[10px] leading-none">
+                                        <span :class="sortBy === 'createdAt' && sortOrder === 'asc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▲</span>
+                                        <span :class="sortBy === 'createdAt' && sortOrder === 'desc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▼</span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Usuario -->
+                            <th @click="handleSort('user')" class="py-3 px-4 text-left cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors">
+                                <div class="flex items-center space-x-1">
+                                    <span>Usuario</span>
+                                    <span class="inline-flex flex-col text-[10px] leading-none">
+                                        <span :class="sortBy === 'user' && sortOrder === 'asc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▲</span>
+                                        <span :class="sortBy === 'user' && sortOrder === 'desc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▼</span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Acción -->
+                            <th @click="handleSort('action')" class="py-3 px-4 text-left cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors">
+                                <div class="flex items-center space-x-1">
+                                    <span>Acción</span>
+                                    <span class="inline-flex flex-col text-[10px] leading-none">
+                                        <span :class="sortBy === 'action' && sortOrder === 'asc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▲</span>
+                                        <span :class="sortBy === 'action' && sortOrder === 'desc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▼</span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Entidad -->
+                            <th @click="handleSort('entity')" class="py-3 px-4 text-left cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors">
+                                <div class="flex items-center space-x-1">
+                                    <span>Entidad</span>
+                                    <span class="inline-flex flex-col text-[10px] leading-none">
+                                        <span :class="sortBy === 'entity' && sortOrder === 'asc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▲</span>
+                                        <span :class="sortBy === 'entity' && sortOrder === 'desc' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'">▼</span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- IP (Sin ordenamiento dinámico) -->
+                            <th class="py-3 px-4 text-left">IP</th>
+
+                            <!-- Detalles -->
                             <th class="py-3 px-4 text-right">Detalles</th>
                         </tr>
-                    </thead>
+                    </thead>                   
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-slate-700 dark:text-slate-300">
                         <tr v-if="loading">
                             <td colspan="6" class="text-center py-8 text-slate-400">Cargando registros...</td>
@@ -173,12 +216,21 @@
 
 <script setup>
     import { ChevronLeftIcon } from '@heroicons/vue/24/outline';
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, onUnmounted } from 'vue';
     import { adminService } from '@/services/admin.service';
+    import flatpickr from 'flatpickr';
+    import 'flatpickr/dist/flatpickr.css';
+    import 'flatpickr/dist/themes/dark.css';
+    import { Spanish } from 'flatpickr/dist/l10n/es.js';
 
     const logs = ref([]);
     const loading = ref(false);
     const selectedLogModal = ref(null);
+
+    const startDateInput = ref(null);
+    const endDateInput = ref(null);
+    let fpStart = null;
+    let fpEnd = null;
 
     const filters = ref({
         search: '',
@@ -193,26 +245,49 @@
         totalPages: 1,
     });
 
-    const fetchLogs = async () => {
+    const sortBy = ref('createdAt');
+    const sortOrder = ref('desc');
+    
+    const handleSort = (field) => {
+        if (sortBy.value === field) {
+            sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortBy.value = field;
+            sortOrder.value = 'asc';
+        }
+        fetchLogs(1);
+    };
+
+    const fetchLogs = async (page = 1) => {
+        // Si 'page' es un evento DOM o no es un número válido, forzamos página 1
+        const targetPage = (typeof page === 'number' && !isNaN(page)) ? page : 1;
+        
+        pagination.value.page = targetPage;
         loading.value = true;
+
         try {
             const response = await adminService.getAuditLogs({
                 page: pagination.value.page,
-                limit: 15,
-                ...filters.value,
+                limit: pagination.value.limit || 15,
+                search: filters.value.search,
+                entity: filters.value.entity,
+                action: filters.value.action,
+                startDate: filters.value.startDate,
+                endDate: filters.value.endDate,
+                sortBy: sortBy.value,
+                sortOrder: sortOrder.value
             });
 
-            // Desempaquetado seguro compatible con la estructura de Axios y tu Backend
             const resData = response.data?.data || response.data || {};
             logs.value = resData.logs || [];
             pagination.value = resData.pagination || { page: 1, total: 0, totalPages: 1 };
-        } catch (error) {
-            console.error('Error cargando logs:', error);
+        } catch (err) {
+            console.error('Error al cargar logs:', err);
             logs.value = [];
         } finally {
             loading.value = false;
         }
-    };
+    }; 
 
     let searchTimeout = null;
     const debounceSearch = () => {
@@ -224,9 +299,12 @@
     };
 
     const changePage = (newPage) => {
-        pagination.value.page = newPage;
-        fetchLogs();
-    };
+        // Validar límites antes de hacer la petición
+        if (newPage < 1 || newPage > pagination.value.totalPages) return;
+        
+        // Pasar 'newPage' directamente a fetchLogs
+        fetchLogs(newPage);
+    };    
 
     const openDetailsModal = (log) => {
         selectedLogModal.value = log;
@@ -259,9 +337,40 @@
             // Si no es un JSON válido, retornamos el texto tal cual
             return details;
         }
-    };    
-
+    };
+    
     onMounted(() => {
         fetchLogs();
+
+        const commonConfig = {
+            locale: Spanish,
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd/m/Y',
+            allowInput: true,
+        };
+
+        fpStart = flatpickr(startDateInput.value, {
+            ...commonConfig,
+            onChange: (selectedDates, dateStr) => {
+                filters.value.startDate = dateStr;
+                pagination.value.page = 1;
+                fetchLogs();
+            },
+        });
+
+        fpEnd = flatpickr(endDateInput.value, {
+            ...commonConfig,
+            onChange: (selectedDates, dateStr) => {
+                filters.value.endDate = dateStr;
+                pagination.value.page = 1;
+                fetchLogs();
+            },
+        });
+    });
+
+    onUnmounted(() => {
+        if (fpStart) fpStart.destroy();
+        if (fpEnd) fpEnd.destroy();
     });
 </script>
