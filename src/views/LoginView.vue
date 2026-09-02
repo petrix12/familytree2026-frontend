@@ -6,6 +6,12 @@
     const authStore = useAuthStore();
     const router = useRouter();
 
+    const hasLogoError = ref(false);
+
+    const handleLogoError = () => {
+        hasLogoError.value = true;
+    };
+
     const form = ref({
         email: '',
         password: '',
@@ -24,7 +30,23 @@
 <template>
     <div class="min-h-screen flex items-center justify-center bg-slate-900 text-slate-100 p-4">
         <div class="w-full max-w-md bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-700">
-            <h2 class="text-2xl font-bold text-center text-emerald-400 mb-6">Iniciar Sesión</h2>
+            
+            <!-- Logo Centrado -->
+            <div class="flex flex-col items-center justify-center mb-6">
+                <router-link to="/" class="flex flex-col items-center group">
+                    <img 
+                        v-if="!hasLogoError" 
+                        src="/logo.png" 
+                        alt="App Logo" 
+                        @error="handleLogoError"
+                        class="w-14 h-14 object-contain mb-3 transition-transform group-hover:scale-105" 
+                    />
+                    <span v-else class="text-4xl mb-2">🌳</span>
+                    <span class="font-bold text-xl text-emerald-400">FamilyTree 2026</span>
+                </router-link>
+            </div>
+
+            <h2 class="text-xl font-bold text-center text-slate-100 mb-6">Iniciar Sesión</h2>
 
             <div v-if="authStore.error" class="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm">
                 {{ authStore.error }}

@@ -1,48 +1,57 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth.store';
 
-// Vistas públicas y estáticas
-import HomeView from '../views/HomeView.vue';
-import LoginView from '../views/LoginView.vue';
-import RegisterView from '../views/RegisterView.vue';
-import DashboardView from '../views/DashboardView.vue';
-import NotFoundView from '../views/NotFoundView.vue';
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', name: 'home', component: HomeView },
-    { path: '/login', name: 'login', component: LoginView, meta: { requiresGuest: true } },
-    { path: '/register', name: 'register', component: RegisterView, meta: { requiresGuest: true } },
-    { path: '/dashboard', name: 'dashboard', component: DashboardView, meta: { requiresAuth: true } },
-    
-    // Rutas de Administración (Todas estandarizadas con requiresRole)
-    { 
-      path: '/admin', 
-      name: 'admin-dashboard', 
-      component: () => import('../views/admin/AdminDashboardView.vue'), 
-      meta: { requiresAuth: true, requiresRole: 'SUPER_ADMIN' } 
+    { path: '/', name: 'home', component: () => import('@/views/HomeView.vue') },
+    { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue'), meta: { requiresGuest: true } },
+    { path: '/register', name: 'register', component: () => import('@/views/RegisterView.vue'), meta: { requiresGuest: true } },
+    {
+      // Rutas protegidas que comparten el mismo Navbar sin pestañeos
+      path: '/',
+      component: () => import('@/layouts/AppLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          component: () => import('@/views/DashboardView.vue'),
+          meta: { title: 'Dashboard' }
+        },
+        {
+          path: 'profile',
+          name: 'profile',
+          component: () => import('@/views/ProfileView.vue'),
+          meta: { title: 'Configuración de Perfil' }
+        },
+        { 
+          path: '/admin', 
+          name: 'admin-dashboard', 
+          component: () => import('@/views/admin/AdminDashboardView.vue'), 
+          meta: { title: 'Panel de Administración', requiresRole: 'SUPER_ADMIN' } 
+        },
+        {
+          path: 'admin/users',
+          name: 'admin-users',
+          component: () => import('@/views/admin/UsersAdminView.vue'),
+          meta: { title: 'Gestión de Usuarios', requiresRole: 'SUPER_ADMIN' }
+        },
+        { 
+          path: '/admin/roles', 
+          name: 'admin-roles', 
+          component: () => import('@/views/admin/RolesAdminView.vue'), 
+          meta: { title: 'Roles y Permisos', requiresRole: 'SUPER_ADMIN' } 
+        },
+        { 
+          path: '/admin/audit-logs', 
+          name: 'admin-audit-logs', 
+          component: () => import('@/views/admin/AuditLogsView.vue'), 
+          meta: { title: 'Registros de Auditoría', requiresRole: 'SUPER_ADMIN' } 
+        },               
+      ]
     },
-    { 
-      path: '/admin/users', 
-      name: 'admin-users', 
-      component: () => import('../views/admin/UsersAdminView.vue'), 
-      meta: { requiresAuth: true, requiresRole: 'SUPER_ADMIN' } 
-    },
-    { 
-      path: '/admin/roles', 
-      name: 'admin-roles', 
-      component: () => import('@/views/admin/RolesAdminView.vue'), 
-      meta: { requiresAuth: true, requiresRole: 'SUPER_ADMIN' } 
-    },
-    { 
-      path: '/admin/audit-logs', 
-      name: 'admin-audit-logs', 
-      component: () => import('@/views/admin/AuditLogsView.vue'), 
-      meta: { requiresAuth: true, requiresRole: 'SUPER_ADMIN' } 
-    },    
-
-    { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView },  
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') },  
   ],
 });
 

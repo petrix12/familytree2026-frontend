@@ -1,286 +1,319 @@
 <template>
-    <div class="min-h-screen bg-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Botón de retorno al Panel Admin -->
-        <div class="mb-6">
-            <router-link 
-                to="/admin" 
-                class="inline-flex items-center space-x-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors group"
-            >
-                <ChevronLeftIcon class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" />
-                <span>Volver al Panel Admin</span>
-            </router-link>
-        </div>
-        <!-- Encabezado -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-white">Gestión de Usuarios</h1>
-                <p class="text-slate-400 text-sm mt-1">Administra los permisos y accesos de la plataforma en tiempo real.</p>                
+    <div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
+        <div class="min-h-screen bg-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Botón de retorno al Panel Admin -->
+            <div class="mb-6">
+                <router-link 
+                    to="/admin" 
+                    class="inline-flex items-center space-x-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors group"
+                >
+                    <ChevronLeftIcon class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" />
+                    <span>Volver al Panel Admin</span>
+                </router-link>
             </div>
-            <button
-                @click="openUserModal(null)"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-colors shadow-lg shadow-emerald-600/30"
-            >
-                <PlusIcon class="w-5 h-5" />
-                Nuevo Usuario
-            </button>           
-        </div>
-
-        <!-- Barra de Búsqueda y Filtros -->
-        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-2xl p-4 mb-6">
-            <div class="relative">
-                <input
-                    v-model="searchQuery"
-                    @input="handleSearch"
-                    type="text"
-                    placeholder="Buscar por nombre o correo electrónico..."
-                    class="w-full bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg px-10 py-2.5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
-                />
-                <MagnifyingGlassIcon class="w-5 h-5 text-slate-400 absolute left-3 top-3" />
-            </div>
-        </div>
-
-        <!-- Tabla de Usuarios -->
-        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
-            <div v-if="loading" class="p-12 text-center text-slate-500 dark:text-slate-400">
-                <span class="animate-spin inline-block w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mb-2"></span>
-                <p>Cargando usuarios...</p>
+            <!-- Encabezado -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <p class="text-slate-400 text-sm mt-1">Administra los permisos y accesos de la plataforma en tiempo real.</p>                
+                </div>
+                <button
+                    @click="openUserModal(null)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-colors shadow-lg shadow-emerald-600/30"
+                >
+                    <PlusIcon class="w-5 h-5" />
+                    Nuevo Usuario
+                </button>           
             </div>
 
-            <div v-else-if="users.length === 0" class="p-12 text-center text-slate-500 dark:text-slate-400">
-                No se encontraron usuarios que coincidan con la búsqueda.
+            <!-- Barra de Búsqueda y Filtros -->
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-2xl p-4 mb-6">
+                <div class="relative">
+                    <input
+                        v-model="searchQuery"
+                        @input="handleSearch"
+                        type="text"
+                        placeholder="Buscar por nombre o correo electrónico..."
+                        class="w-full bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg px-10 py-2.5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
+                    />
+                    <MagnifyingGlassIcon class="w-5 h-5 text-slate-400 absolute left-3 top-3" />
+                </div>
             </div>
 
-            <div v-else class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                    <thead>
-                        <tr class="border-b border-slate-700/60 bg-slate-800/40 text-slate-400 text-xs font-semibold uppercase tracking-wider select-none">                            
-                            <!-- Columna Nombre (Usuario) -->
-                            <th @click="handleSort('name')" class="px-6 py-3 text-left cursor-pointer hover:text-white transition-colors">
-                                <div class="flex items-center space-x-1">
-                                    <span>Usuario</span>
-                                    <span class="inline-flex flex-col text-[10px] leading-none">
-                                        <span :class="sortBy === 'name' && sortOrder === 'asc' ? 'text-emerald-400' : 'text-slate-600'">▲</span>
-                                        <span :class="sortBy === 'name' && sortOrder === 'desc' ? 'text-emerald-400' : 'text-slate-600'">▼</span>
-                                    </span>
-                                </div>
-                            </th>
+            <!-- Tabla de Usuarios -->
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+                <div v-if="loading" class="p-12 text-center text-slate-500 dark:text-slate-400">
+                    <span class="animate-spin inline-block w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mb-2"></span>
+                    <p>Cargando usuarios...</p>
+                </div>
 
-                            <!-- Columna Roles (No ordenable) -->
-                            <th class="px-6 py-3 text-left">Roles Asignados</th>
+                <div v-else-if="users.length === 0" class="p-12 text-center text-slate-500 dark:text-slate-400">
+                    No se encontraron usuarios que coincidan con la búsqueda.
+                </div>
 
-                            <!-- Columna Fecha Registro -->
-                            <th @click="handleSort('createdAt')" class="px-6 py-3 text-left cursor-pointer hover:text-white transition-colors">
-                                <div class="flex items-center space-x-1">
-                                    <span>Fecha Registro</span>
-                                    <span class="inline-flex flex-col text-[10px] leading-none">
-                                        <span :class="sortBy === 'createdAt' && sortOrder === 'asc' ? 'text-emerald-400' : 'text-slate-600'">▲</span>
-                                        <span :class="sortBy === 'createdAt' && sortOrder === 'desc' ? 'text-emerald-400' : 'text-slate-600'">▼</span>
-                                    </span>
-                                </div>
-                            </th>
-
-                            <th class="px-6 py-3 text-right">Acciones</th>
-                        </tr>
-                    </thead>                    
-                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                        <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                            <!-- Info Usuario -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-slate-700 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-slate-600">
-                                        {{ user.name ? user.name.charAt(0) : 'U' }}
+                <div v-else class="overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                        <thead>
+                            <tr class="border-b border-slate-700/60 bg-slate-800/40 text-slate-400 text-xs font-semibold uppercase tracking-wider select-none">                            
+                                <!-- Columna Nombre (Usuario) -->
+                                <th @click="handleSort('name')" class="px-6 py-3 text-left cursor-pointer hover:text-white transition-colors">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Usuario</span>
+                                        <span class="inline-flex flex-col text-[10px] leading-none">
+                                            <span :class="sortBy === 'name' && sortOrder === 'asc' ? 'text-emerald-400' : 'text-slate-600'">▲</span>
+                                            <span :class="sortBy === 'name' && sortOrder === 'desc' ? 'text-emerald-400' : 'text-slate-600'">▼</span>
+                                        </span>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-slate-900 dark:text-slate-200">{{ user.name }}</div>
-                                        <div class="text-sm text-slate-500 dark:text-slate-400">{{ user.email }}</div>
+                                </th>
+
+                                <!-- Columna Roles (No ordenable) -->
+                                <th class="px-6 py-3 text-left">Roles Asignados</th>
+
+                                <!-- Columna Fecha Registro -->
+                                <th @click="handleSort('createdAt')" class="px-6 py-3 text-left cursor-pointer hover:text-white transition-colors">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Fecha Registro</span>
+                                        <span class="inline-flex flex-col text-[10px] leading-none">
+                                            <span :class="sortBy === 'createdAt' && sortOrder === 'asc' ? 'text-emerald-400' : 'text-slate-600'">▲</span>
+                                            <span :class="sortBy === 'createdAt' && sortOrder === 'desc' ? 'text-emerald-400' : 'text-slate-600'">▼</span>
+                                        </span>
                                     </div>
-                                </div>
-                            </td>
+                                </th>
 
-                            <!-- Badges de Roles -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-wrap gap-1.5">
-                                    <span
-                                        v-for="role in user.roles"
-                                        :key="role"
-                                        :class="getRoleBadgeClass(role)"
-                                        class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"
-                                    >
-                                        {{ role }}
-                                    </span>
-                                    <span v-if="user.roles.length === 0" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600">
-                                        Sin permisos (Guest)
-                                    </span>
-                                </div>
-                            </td>
+                                <th class="px-6 py-3 text-right">Acciones</th>
+                            </tr>
+                        </thead>                    
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                            <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                                <!-- Info Usuario -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-slate-700 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-slate-600">
+                                            {{ user.name ? user.name.charAt(0) : 'U' }}
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-slate-900 dark:text-slate-200">{{ user.name }}</div>
+                                            <div class="text-sm text-slate-500 dark:text-slate-400">{{ user.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
 
-                            <!-- Fecha -->
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                                {{ formatDate(user.createdAt) }}
-                            </td>
+                                <!-- Badges de Roles -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex flex-wrap gap-1.5">
+                                        <span
+                                            v-for="role in user.roles"
+                                            :key="role"
+                                            :class="getRoleBadgeClass(role)"
+                                            class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"
+                                        >
+                                            {{ role }}
+                                        </span>
+                                        <span v-if="user.roles.length === 0" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600">
+                                            Sin permisos (Guest)
+                                        </span>
+                                    </div>
+                                </td>
 
-                            <!-- Acciones -->
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="inline-flex items-center justify-end space-x-2">
-                                    <button
-                                        @click="openUserModal(user)"
-                                        title="Editar datos del usuario"
-                                        class="h-9 w-9 inline-flex items-center justify-center bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white rounded-lg transition-all"
-                                    >
-                                        <PencilSquareIcon class="w-4 h-4" />
-                                    </button>
+                                <!-- Fecha -->
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                    {{ formatDate(user.createdAt) }}
+                                </td>
 
-                                    <button
-                                        @click="confirmDeleteUser(user)"
-                                        title="Eliminar usuario"
-                                        class="h-9 w-9 inline-flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white rounded-lg transition-all"
-                                    >
-                                        <TrashIcon class="w-4 h-4" />
-                                    </button>
+                                <!-- Acciones -->
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="inline-flex items-center justify-end space-x-2">
+                                        <button
+                                            @click="openUserModal(user)"
+                                            title="Editar datos del usuario"
+                                            class="h-9 w-9 inline-flex items-center justify-center bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white rounded-lg transition-all"
+                                        >
+                                            <PencilSquareIcon class="w-4 h-4" />
+                                        </button>
 
-                                    <button
-                                        @click="openRoleModal(user)"
-                                        title="Editar Roles"
-                                        class="h-9 px-3 inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white rounded-lg transition-all"
-                                    >
-                                        <UserGroupIcon class="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                        <button
+                                            @click="confirmDeleteUser(user)"
+                                            title="Eliminar usuario"
+                                            class="h-9 w-9 inline-flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white rounded-lg transition-all"
+                                        >
+                                            <TrashIcon class="w-4 h-4" />
+                                        </button>
 
-            <!-- Paginación -->
-            <div v-if="pagination.totalPages > 1" class="px-6 py-4 bg-slate-50 dark:bg-slate-900/40 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <span class="text-sm text-slate-500 dark:text-slate-400">
-                    Página {{ pagination.page }} de {{ pagination.totalPages }}
-                </span>
-                <div class="flex gap-2">
-                    <button
-                        :disabled="pagination.page === 1"
-                        @click="changePage(pagination.page - 1)"
-                        class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        Anterior
-                    </button>
-                    <button
-                        :disabled="pagination.page === pagination.totalPages"
-                        @click="changePage(pagination.page + 1)"
-                        class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        Siguiente
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal de Asignación de Roles -->
-        <div v-if="selectedUser" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm">
-            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">Gestionar Roles</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                    Modificando permisos para <span class="text-emerald-600 dark:text-emerald-400 font-semibold">{{ selectedUser.name }}</span>
-                </p>
-
-                <div class="space-y-3 mb-6">
-                    <label v-for="role in availableRoles" :key="role" class="flex items-center space-x-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-emerald-300 dark:hover:border-slate-500 transition-colors">
-                        <input
-                            type="checkbox"
-                            :value="role"
-                            v-model="modalRoles"
-                            class="w-4 h-4 text-emerald-600 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded focus:ring-emerald-500"
-                        />
-                        <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ role }}</span>
-                    </label>
+                                        <button
+                                            @click="openRoleModal(user)"
+                                            title="Editar Roles"
+                                            class="h-9 px-3 inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 dark:hover:text-white rounded-lg transition-all"
+                                        >
+                                            <UserGroupIcon class="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="flex justify-end gap-3">
-                    <button
-                        @click="selectedUser = null"
-                        class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        @click="saveUserRoles"
-                        :disabled="saving"
-                        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl disabled:opacity-50 transition-colors"
-                    >
-                        {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal de Usuario (Creación / Edición) -->
-        <div v-if="isUserModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm">
-            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">
-                    {{ targetUser ? 'Editar Usuario' : 'Nuevo Usuario' }}
-                </h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                    {{ targetUser ? `Modificando los datos de ${targetUser.name}` : 'Ingresa la información del nuevo usuario' }}
-                </p>
-
-                <form @submit.prevent="saveUserData" class="space-y-4">
-                    <!-- Nombre -->
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nombre Completo</label>
-                        <input
-                            v-model="userForm.name"
-                            type="text"
-                            required
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        />
-                    </div>
-
-                    <!-- Email -->
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Correo Electrónico</label>
-                        <input
-                            v-model="userForm.email"
-                            type="email"
-                            required
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        />
-                    </div>
-
-                    <!-- Contraseña -->
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                            Contraseña {{ targetUser ? '(Opcional / Dejar en blanco)' : '' }}
-                        </label>
-                        <input
-                            v-model="userForm.password"
-                            type="password"
-                            :required="!targetUser"
-                            placeholder="••••••••"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        />
-                    </div>
-
-                    <!-- Botones -->
-                    <div class="flex justify-end gap-3 pt-2">
+                <!-- Paginación -->
+                <div v-if="pagination.totalPages > 1" class="px-6 py-4 bg-slate-50 dark:bg-slate-900/40 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <span class="text-sm text-slate-500 dark:text-slate-400">
+                        Página {{ pagination.page }} de {{ pagination.totalPages }}
+                    </span>
+                    <div class="flex gap-2">
                         <button
-                            type="button"
-                            @click="isUserModalOpen = false"
+                            :disabled="pagination.page === 1"
+                            @click="changePage(pagination.page - 1)"
+                            class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Anterior
+                        </button>
+                        <button
+                            :disabled="pagination.page === pagination.totalPages"
+                            @click="changePage(pagination.page + 1)"
+                            class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Asignación de Roles -->
+            <div v-if="selectedUser" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">Gestionar Roles</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                        Modificando permisos para <span class="text-emerald-600 dark:text-emerald-400 font-semibold">{{ selectedUser.name }}</span>
+                    </p>
+
+                    <div class="space-y-3 mb-6">
+                        <label v-for="role in availableRoles" :key="role" class="flex items-center space-x-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-emerald-300 dark:hover:border-slate-500 transition-colors">
+                            <input
+                                type="checkbox"
+                                :value="role"
+                                v-model="modalRoles"
+                                class="w-4 h-4 text-emerald-600 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded focus:ring-emerald-500"
+                            />
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ role }}</span>
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button
+                            @click="selectedUser = null"
                             class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
                         >
                             Cancelar
                         </button>
                         <button
-                            type="submit"
+                            @click="saveUserRoles"
                             :disabled="saving"
                             class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl disabled:opacity-50 transition-colors"
                         >
-                            {{ saving ? 'Guardando...' : (targetUser ? 'Guardar Cambios' : 'Crear Usuario') }}
+                            {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>        
+            
+            <!-- Modal de Usuario (Creación / Edición) -->
+            <div v-if="isUserModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+                        {{ targetUser ? 'Editar Usuario' : 'Nuevo Usuario' }}
+                    </h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                        {{ targetUser ? `Modificando los datos de ${targetUser.name}` : 'Ingresa la información del nuevo usuario' }}
+                    </p>
+
+                    <form @submit.prevent="saveUserData" class="space-y-4">
+                        <!-- Nombre -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Nombre Completo</label>
+                            <input
+                                v-model="userForm.name"
+                                type="text"
+                                required
+                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Correo Electrónico</label>
+                            <input
+                                v-model="userForm.email"
+                                type="email"
+                                required
+                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                                Contraseña {{ targetUser ? '(Opcional / Dejar en blanco)' : '' }}
+                            </label>
+                            <input
+                                v-model="userForm.password"
+                                type="password"
+                                :required="!targetUser"
+                                placeholder="••••••••"
+                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                        </div>
+
+                        <!-- Foto de Perfil -->
+                        <div class="mb-4 flex items-center space-x-4">
+                            <div class="relative w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 flex items-center justify-center border border-slate-200 dark:border-slate-600">
+                                <img v-if="userForm.avatarUrl" :src="userForm.avatarUrl" class="w-full h-full object-cover" />
+                                <span v-else class="text-xl font-bold text-emerald-500 dark:text-emerald-400">
+                                    {{ userForm.name ? userForm.name.charAt(0).toUpperCase() : 'U' }}
+                                </span>
+                            </div>
+
+                            <div class="flex flex-col space-y-2">
+                                <label class="cursor-pointer px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-xs text-slate-700 dark:text-slate-200 font-medium rounded-lg border border-slate-300 dark:border-slate-600 transition-colors inline-block text-center">
+                                    <span>Subir imagen</span>
+                                    <input 
+                                        ref="fileInputRef" 
+                                        type="file" 
+                                        accept="image/*" 
+                                        class="hidden" 
+                                        @change="handleAvatarChange" 
+                                    />
+                                </label>
+
+                                <button 
+                                    v-if="userForm.avatarUrl" 
+                                    type="button" 
+                                    @click="removeAvatar"
+                                    class="text-xs text-red-500 hover:text-red-400 text-left transition-colors"
+                                >
+                                    Eliminar imagen
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button
+                                type="button"
+                                @click="isUserModalOpen = false"
+                                class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                :disabled="saving"
+                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl disabled:opacity-50 transition-colors"
+                            >
+                                {{ saving ? 'Guardando...' : (targetUser ? 'Guardar Cambios' : 'Crear Usuario') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>        
+        </div>
     </div>
 </template>
 
@@ -306,7 +339,34 @@
     // --- ESTADOS PARA CREACIÓN / EDICIÓN COMPLETA DE USUARIO ---
     const isUserModalOpen = ref(false);
     const targetUser = ref(null);
-    const userForm = ref({ name: '', email: '', password: '' });
+    const fileInputRef = ref(null);
+    const userForm = ref({
+        id: null,
+        name: '',
+        email: '',
+        password: '',
+        avatarUrl: null,
+        avatarFile: null // Archivo binario para subir
+    });
+
+    // Manejar la selección del archivo de imagen
+    const handleAvatarChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            userForm.value.avatarFile = file;
+            userForm.value.avatarUrl = URL.createObjectURL(file);
+        }
+    };
+    
+    // Eliminar foto de perfil
+    const removeAvatar = () => {
+        userForm.value.avatarFile = null;
+        userForm.value.avatarUrl = null;
+        // Resetea el input HTML para permitir volver a seleccionar el mismo archivo si se desea
+        if (fileInputRef.value) {
+            fileInputRef.value.value = '';
+        }
+    };        
 
     // --- LÓGICA DE CARGA Y BÚSQUEDA ---
     // Estados de ordenamiento
