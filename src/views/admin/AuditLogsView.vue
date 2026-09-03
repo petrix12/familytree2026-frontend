@@ -223,7 +223,6 @@
     import 'flatpickr/dist/flatpickr.css';
     import 'flatpickr/dist/themes/dark.css';
     import { Spanish } from 'flatpickr/dist/l10n/es.js';
-    import Navbar from '../../components/Navbar.vue';
 
     const logs = ref([]);
     const loading = ref(false);

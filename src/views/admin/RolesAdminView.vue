@@ -179,7 +179,6 @@
     import { PlusIcon, PencilIcon, TrashIcon, ChevronLeftIcon } from '@heroicons/vue/24/outline';
     import { ref, computed, onMounted } from 'vue';
     import { rolesService } from '@/services/roles.service';
-    import Navbar from '../../components/Navbar.vue';
     import Swal from 'sweetalert2';
 
     const roles = ref([]);

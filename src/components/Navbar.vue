@@ -2,8 +2,7 @@
     import { ref, computed, onMounted, onUnmounted } from 'vue';
     import { useRouter, useRoute } from 'vue-router';
     import { useAuthStore } from '../stores/auth.store';
-    import { 
-        UserIcon, 
+    import {
         Cog6ToothIcon, 
         Squares2X2Icon, 
         ArrowRightOnRectangleIcon, 
