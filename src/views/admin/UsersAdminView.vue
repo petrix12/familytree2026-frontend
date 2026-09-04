@@ -277,7 +277,11 @@
                         <!-- Foto de Perfil -->
                         <div class="mb-4 flex items-center space-x-4">
                             <div class="relative w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 flex items-center justify-center border border-slate-200 dark:border-slate-600">
-                                <img v-if="userForm.avatarUrl" :src="userForm.avatarUrl" class="w-full h-full object-cover" />
+                                <img 
+                                    v-if="userForm.avatarUrl" 
+                                    :src="userForm.avatarUrl" 
+                                    :alt="userForm.name"
+                                    class="w-full h-full object-cover" />
                                 <span v-else class="text-xl font-bold text-emerald-500 dark:text-emerald-400">
                                     {{ userForm.name ? userForm.name.charAt(0).toUpperCase() : 'U' }}
                                 </span>
@@ -453,10 +457,15 @@
         targetUser.value = user;
         if (user) {
             // Edición
-            userForm.value = { name: user.name, email: user.email, password: '' };
+            userForm.value = { 
+                name: user.name, 
+                email: user.email, 
+                avatarUrl: user.avatarUrl || null,
+                password: '' 
+            };
         } else {
             // Creación
-            userForm.value = { name: '', email: '', password: '' };
+            userForm.value = { name: '', email: '', avatarUrl: null, password: '' };
         }
         isUserModalOpen.value = true;
     };
