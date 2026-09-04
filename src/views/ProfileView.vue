@@ -1,15 +1,27 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useAuthStore } from '../stores/auth.store';
-import { UserIcon, KeyIcon, ChevronLeftIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
+import { UserIcon, KeyIcon, ChevronLeftIcon } from '@heroicons/vue/24/outline';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const authStore = useAuthStore();
 const fileInputRef = ref(null);
 const saving = ref(false);
-const alertMessage = ref({ type: '', text: '' });
 
-// Formulario reactivo inicializado con los datos del usuario en Pinia
+// Configuración base de SweetAlert2 con estilo oscuro (Slate)
+const swalDark = Swal.mixin({
+    background: '#1e293b',
+    color: '#f8fafc',
+    customClass: {
+        popup: 'rounded-2xl border border-slate-700 shadow-2xl',
+        confirmButton: 'px-5 py-2.5 rounded-xl font-medium text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition-colors',
+        cancelButton: 'px-5 py-2.5 rounded-xl font-medium text-sm bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors'
+    },
+    buttonsStyling: false
+});
+
+// Formulario reactivo
 const profileForm = ref({
     name: authStore.user?.name || '',
     email: authStore.user?.email || '',
@@ -19,7 +31,7 @@ const profileForm = ref({
     avatarFile: null
 });
 
-// Mantener actualizado el formulario si authStore.user cambia
+// Sincronizar cambios en authStore.user
 watch(() => authStore.user, (newUser) => {
     if (newUser) {
         profileForm.value.name = newUser.name || '';
@@ -36,26 +48,63 @@ const handleAvatarChange = (event) => {
     if (file) {
         // Validar tamaño máximo (2MB)
         if (file.size > 2 * 1024 * 1024) {
-            alertMessage.value = { type: 'error', text: 'La imagen supera el tamaño máximo permitido de 2MB.' };
+            swalDark.fire({
+                title: 'Archivo muy grande',
+                text: 'La imagen supera el tamaño máximo permitido de 2MB.',
+                icon: 'warning'
+            });
+            if (fileInputRef.value) fileInputRef.value.value = '';
             return;
         }
+
+        // Liberar ObjectURL anterior si existía para evitar leaks de memoria
+        if (profileForm.value.avatarUrl && profileForm.value.avatarUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(profileForm.value.avatarUrl);
+        }
+
         profileForm.value.avatarFile = file;
         profileForm.value.avatarUrl = URL.createObjectURL(file);
     }
 };
 
-// Cancelar/Quitar selección de la nueva foto
+// Cancelar/Quitar selección local de la foto
 const removeAvatarSelection = () => {
+    if (profileForm.value.avatarUrl && profileForm.value.avatarUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(profileForm.value.avatarUrl);
+    }
     profileForm.value.avatarFile = null;
     profileForm.value.avatarUrl = authStore.user?.avatarUrl || null;
     if (fileInputRef.value) fileInputRef.value.value = '';
 };
 
-// Acción principal: Guardar Cambios del Perfil
+// Guardar Cambios del Perfil
 const updateProfile = async () => {
-    saving.value = true;
-    alertMessage.value = { type: '', text: '' };
+    const nameChanged = profileForm.value.name !== authStore.user?.name;
+    const passwordProvided = Boolean(profileForm.value.newPassword);
+    const avatarProvided = Boolean(profileForm.value.avatarFile);
 
+    if (!avatarProvided && !nameChanged && !passwordProvided) {
+        swalDark.fire({
+            title: 'Sin cambios',
+            text: 'No has realizado ninguna modificación en tu perfil.',
+            icon: 'info',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        return;
+    }
+
+    // Validación de contraseña si intenta cambiarla
+    if (passwordProvided && !profileForm.value.currentPassword) {
+        swalDark.fire({
+            title: 'Campo requerido',
+            text: 'Debes ingresar tu contraseña actual para establecer una nueva.',
+            icon: 'warning'
+        });
+        return;
+    }
+
+    saving.value = true;
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1';
     const authHeaders = {
         headers: { Authorization: `Bearer ${authStore.token}` }
@@ -64,7 +113,7 @@ const updateProfile = async () => {
     try {
         let updatedUserData = null;
 
-        // 1. Subir Avatar si se seleccionó un nuevo archivo
+        // 1. Subir Avatar
         if (profileForm.value.avatarFile) {
             const formData = new FormData();
             formData.append('avatar', profileForm.value.avatarFile);
@@ -78,10 +127,7 @@ const updateProfile = async () => {
             updatedUserData = avatarRes.data.data?.user || avatarRes.data.user;
         }
 
-        // 2. Actualizar Datos de Perfil (Nombre y/o Contraseña) si aplica
-        const nameChanged = profileForm.value.name !== authStore.user?.name;
-        const passwordProvided = Boolean(profileForm.value.newPassword);
-
+        // 2. Actualizar Datos de Perfil (Nombre y/o Contraseña)
         if (nameChanged || passwordProvided) {
             const profilePayload = {
                 name: profileForm.value.name,
@@ -95,14 +141,7 @@ const updateProfile = async () => {
             updatedUserData = profileRes.data.data?.user || profileRes.data.user;
         }
 
-        // 3. Si no cambió nada, informar al usuario
-        if (!profileForm.value.avatarFile && !nameChanged && !passwordProvided) {
-            alertMessage.value = { type: 'info', text: 'No se realizaron cambios en el perfil.' };
-            saving.value = false;
-            return;
-        }
-
-        // 4. Actualizar el Store de Pinia y LocalStorage
+        // 3. Actualizar Store de Pinia
         if (updatedUserData) {
             if (typeof authStore.setUser === 'function') {
                 authStore.setUser(updatedUserData);
@@ -111,31 +150,51 @@ const updateProfile = async () => {
             }
         }
 
-        // Limpiar campos de contraseña y archivo
+        // Limpieza de campos de contraseña y archivos
         profileForm.value.currentPassword = '';
         profileForm.value.newPassword = '';
         profileForm.value.avatarFile = null;
         if (fileInputRef.value) fileInputRef.value.value = '';
 
-        alertMessage.value = { type: 'success', text: 'Perfil actualizado correctamente.' };
+        swalDark.fire({
+            title: '¡Perfil actualizado!',
+            text: 'Tus datos se han guardado correctamente.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
+
     } catch (error) {
         console.error('Error al actualizar perfil:', error);
-        alertMessage.value = {
-            type: 'error',
-            text: error.response?.data?.message || 'Ocurrió un error al intentar actualizar el perfil.'
-        };
+        swalDark.fire({
+            title: 'Error',
+            text: error.response?.data?.message || 'Ocurrió un error al intentar actualizar el perfil.',
+            icon: 'error'
+        });
     } finally {
         saving.value = false;
     }
 };
 
-// Función para eliminar definitivamente el avatar de S3 y de la BD
+// Eliminar avatar definitivamente
 const removeCurrentAvatar = async () => {
-    if (!confirm('¿Estás seguro de que deseas eliminar tu imagen de perfil?')) return;
+    const confirmResult = await swalDark.fire({
+        title: '¿Eliminar foto de perfil?',
+        text: 'Tu avatar se borrará permanentemente de tu cuenta.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+            popup: 'rounded-2xl border border-slate-700 shadow-2xl',
+            confirmButton: 'px-5 py-2.5 rounded-xl font-medium text-sm bg-red-600 hover:bg-red-500 text-white transition-colors mr-3',
+            cancelButton: 'px-5 py-2.5 rounded-xl font-medium text-sm bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors'
+        }
+    });
+
+    if (!confirmResult.isConfirmed) return;
 
     saving.value = true;
-    alertMessage.value = { type: '', text: '' };
-
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1';
 
     try {
@@ -155,13 +214,20 @@ const removeCurrentAvatar = async () => {
         profileForm.value.avatarFile = null;
         if (fileInputRef.value) fileInputRef.value.value = '';
 
-        alertMessage.value = { type: 'success', text: 'Imagen de perfil eliminada correctamente.' };
+        swalDark.fire({
+            title: 'Eliminada',
+            text: 'Tu foto de perfil ha sido eliminada.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
     } catch (error) {
         console.error('Error al eliminar avatar:', error);
-        alertMessage.value = {
-            type: 'error',
-            text: error.response?.data?.message || 'Error al eliminar la imagen de perfil.'
-        };
+        swalDark.fire({
+            title: 'Error',
+            text: error.response?.data?.message || 'Error al eliminar la imagen de perfil.',
+            icon: 'error'
+        });
     } finally {
         saving.value = false;
     }
@@ -184,21 +250,6 @@ const removeCurrentAvatar = async () => {
         <div class="mb-6">
             <h2 class="text-2xl font-bold text-slate-100">Mi Perfil</h2>
             <p class="text-sm text-slate-400">Administra tu información personal y seguridad de la cuenta.</p>
-        </div>
-
-        <!-- Banner de Alertas -->
-        <div 
-            v-if="alertMessage.text" 
-            :class="[
-                'mb-6 p-4 rounded-xl border flex items-center gap-3 text-sm font-medium',
-                alertMessage.type === 'success' ? 'bg-emerald-950/50 border-emerald-500/50 text-emerald-300' : '',
-                alertMessage.type === 'error' ? 'bg-red-950/50 border-red-500/50 text-red-300' : '',
-                alertMessage.type === 'info' ? 'bg-slate-800 border-slate-600 text-slate-300' : ''
-            ]"
-        >
-            <CheckCircleIcon v-if="alertMessage.type === 'success'" class="w-5 h-5 text-emerald-400 shrink-0" />
-            <ExclamationTriangleIcon v-else class="w-5 h-5 text-red-400 shrink-0" />
-            <span>{{ alertMessage.text }}</span>
         </div>
 
         <form @submit.prevent="updateProfile" class="space-y-6">
@@ -229,7 +280,7 @@ const removeCurrentAvatar = async () => {
                                 <input ref="fileInputRef" type="file" accept="image/*" class="hidden" @change="handleAvatarChange" />
                             </label>
 
-                            <!-- Botón para cancelar selección local antes de subir -->
+                            <!-- Cancelar selección local antes de subir -->
                             <button 
                                 v-if="profileForm.avatarFile" 
                                 type="button" 
@@ -239,7 +290,7 @@ const removeCurrentAvatar = async () => {
                                 Cancelar Selección
                             </button>
 
-                            <!-- Botón para eliminar permanentemente de S3/BD -->
+                            <!-- Eliminar permanentemente de S3/BD -->
                             <button 
                                 v-else-if="authStore.user?.avatarUrl" 
                                 type="button" 

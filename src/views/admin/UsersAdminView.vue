@@ -87,8 +87,21 @@
                                 <!-- Info Usuario -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-slate-700 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-slate-600">
+                                        <!-- <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-slate-700 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-slate-600">
                                             {{ user.name ? user.name.charAt(0) : 'U' }}
+                                        </div> -->
+                                        <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-slate-700 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-slate-600 overflow-hidden shrink-0">
+                                            <!-- Si tiene avatar, muestra la imagen -->
+                                            <img 
+                                                v-if="user.avatarUrl || user.avatar" 
+                                                :src="user.avatarUrl || user.avatar" 
+                                                :alt="user.name"
+                                                class="w-full h-full object-cover" 
+                                            />
+                                            <!-- Si no tiene avatar, muestra la inicial -->
+                                            <span v-else>
+                                                {{ user.name ? user.name.charAt(0) : 'U' }}
+                                            </span>
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-slate-900 dark:text-slate-200">{{ user.name }}</div>
